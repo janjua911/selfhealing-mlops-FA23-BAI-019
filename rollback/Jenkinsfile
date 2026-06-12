@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+
+    triggers {
+        GenericTrigger(
+            genericVariables: [],
+            token: 'ROLLBACK_6556B2_TOKEN',
+            causeString: 'Triggered by Alertmanager webhook - Model Confidence Drift',
+            printContributedVariables: false,
+            printPostContent: false
+        )
+    }
+
+    stages {
+        stage('Switch Traffic to Stable (Green)') {
+            steps {
+                sh '''
+                    kubectl patch service sentiment-api-service -p '{"spec":{"selector":{"app":"sentiment-api","slot":"green"}}}'
+                '''
+            }
+        }
+    }
+}
