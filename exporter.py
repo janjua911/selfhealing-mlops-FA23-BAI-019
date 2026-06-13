@@ -14,7 +14,7 @@ import requests
 from prometheus_client import start_http_server, Gauge
 
 # URL of the app's latest-confidence endpoint (via Minikube NodePort)
-APP_URL = "http://localhost:32500/api/latest-confidence"
+APP_URL = "http://192.168.49.2:32500/api/latest-confidence"
 
 # Polling interval in seconds
 POLL_INTERVAL = 5

@@ -20,5 +20,6 @@ spec:
       containers:
         - name: sentiment-api
           image: hassan911123/sentiment-api:stable
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
