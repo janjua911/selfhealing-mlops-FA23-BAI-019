@@ -22,7 +22,7 @@ pipeline {
                     docker rm -f ${CONTAINER_NAME} || true
                     docker build -t ${IMAGE_NAME_UNSTABLE} .
                     docker run -d --name ${CONTAINER_NAME} -p 5000:5000 ${IMAGE_NAME_UNSTABLE}
-                    sleep 25
+                    sleep 30
                 '''
             }
         }
@@ -30,8 +30,8 @@ pipeline {
         stage('Unit Test') {
             steps {
                 sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
+                    python3 -m venv ci-venv
+                    . ci-venv/bin/activate
                     pip install --quiet -r requirements.txt
                     pytest tests/test_api.py -v
                 '''
@@ -41,7 +41,7 @@ pipeline {
         stage('UI Test') {
             steps {
                 sh '''
-                    . venv/bin/activate
+                    . ci-venv/bin/activate
                     pytest tests/test_ui.py -v
                 '''
             }
@@ -55,11 +55,13 @@ pipeline {
                     docker build -t ${IMAGE_NAME_UNSTABLE} .
                     docker push ${IMAGE_NAME_UNSTABLE}
 
-                    git fetch origin stable-fallback
-                    git checkout stable-fallback
+                    rm -rf stable-fallback-build
+                    git clone -b stable-fallback https://github.com/janjua911/selfhealing-mlops-FA23-BAI-019.git stable-fallback-build
+                    cd stable-fallback-build
                     docker build -t ${IMAGE_NAME_STABLE} .
                     docker push ${IMAGE_NAME_STABLE}
-                    git checkout main
+                    cd ..
+                    rm -rf stable-fallback-build
                 '''
             }
         }
@@ -80,6 +82,8 @@ pipeline {
         always {
             sh '''
                 docker rm -f ${CONTAINER_NAME} || true
+                rm -rf ci-venv
+                docker image prune -f
             '''
         }
     }
