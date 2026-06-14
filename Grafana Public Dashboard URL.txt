@@ -1,1 +1,1 @@
-PASTE_YOUR_URL_HERE
+http://13.206.54.52:3000/public-dashboards/2c6b6941c4fa4707bc9c3770a31b8bb7
