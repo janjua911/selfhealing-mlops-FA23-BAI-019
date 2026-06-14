@@ -1,0 +1,7 @@
+ci-venv/
+venv/
+*.log
+__pycache__/
+*.pyc
+.git/
+stable-fallback-build/
