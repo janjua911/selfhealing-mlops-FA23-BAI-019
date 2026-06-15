@@ -1,1 +1,1 @@
-http://13.206.54.52:3000/public-dashboards/2c6b6941c4fa4707bc9c3770a31b8bb7
+http://13.206.54.52:3000/public-dashboards/507c8e3911e64f29a2fc5b7db4a90c26
