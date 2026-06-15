@@ -29,22 +29,15 @@ pipeline {
 
         stage('Unit Test') {
             steps {
-                sh '''
-                    python3 -m venv ci-venv
-                    . ci-venv/bin/activate
-                    pip install --quiet -r requirements.txt
-                    pytest tests/test_api.py -v
-                '''
+               
+                    sh "docker exec ${CONTAINER_NAME} pytest tests/test_api.py -v"
             }
         }
 
         stage('UI Test') {
             steps {
-                sh '''
-                    . ci-venv/bin/activate
-                    pytest tests/test_ui.py -v
-                '''
-            }
+                
+               sh "docker exec ${CONTAINER_NAME} pytest tests/test_ui.py -v"
         }
 
         stage('Build and Push') {
@@ -68,23 +61,24 @@ pipeline {
 
         stage('Deploy to Minikube') {
             steps {
-                sh '''
-                    kubectl apply -f k8s/pvc.yaml
-                    kubectl apply -f k8s/blue-deployment.yaml
-                    kubectl apply -f k8s/green-deployment.yaml
-                    kubectl apply -f k8s/service.yaml
-                '''
+               sh '''
+            if ! minikube status | grep -q "Running"; then
+                minikube start --driver=docker
+            fi
+
+            eval $(minikube docker-env)
+
+            kubectl apply -f k8s/pvc.yaml
+            kubectl apply -f k8s/blue-deployment.yaml
+            kubectl apply -f k8s/green-deployment.yaml
+            kubectl apply -f k8s/service.yaml
+
+            docker rm -f ${CONTAINER_NAME} || true
+        '''
             }
         }
     }
 
-    post {
-        always {
-            sh '''
-                docker rm -f ${CONTAINER_NAME} || true
-                rm -rf ci-venv
-                docker image prune -f
-            '''
-        }
+    
     }
 }
